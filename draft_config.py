@@ -57,10 +57,14 @@ train_dataloader1 = dict(
 train_cfg = dict(
   #type= "EpochBasedTrainLoop",
   type = "CustomTrainLoop", 
-  max_epochs = 1,
+  max_epochs = 5,
   dataloader1 = train_dataloader1,
+  val_interval = 1,
   _delete_ = True
 )
+
+work_dir='../experiment_result'
+
 
 model = dict(
     type='CustomClassifier',
@@ -81,9 +85,19 @@ model = dict(
     ))
 
 # Set val and test components to None to disable validation
-val_dataloader = None
-val_cfg = None
-val_evaluator = None
+val_dataloader = train_dataloader
+
+val_cfg=dict(
+    type = "CustomTrainLoop", 
+    dataloader1 = train_dataloader1,
+    #it must be custom val loop, not custom train loop
+    #Override the method if needed
+    #validation did not run with the trainloop
+)
+val_evaluator=dict(type='Accuracy')
+
+# val_cfg = None
+# val_evaluator = None
 
 # Optionally set test components to None if they are present in the base config
 test_dataloader = None
@@ -97,4 +111,5 @@ visualizer = dict(
     type='Visualizer', 
     vis_backends=[dict(type='TensorboardVisBackend')])
 
-checkpoint=dict(type='CheckpointHook', interval=0)
+# the default value of by_epoch is True
+default_hooks = dict(checkpoint=dict(type='CheckpointHook', interval=10, by_epoch=True))

@@ -9,7 +9,6 @@ img_norm_cfg = dict(
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='RandomResizedCrop', scale = 224),
     dict(type='PackInputs'),
 ]
 
@@ -19,23 +18,53 @@ train_dataloader = dict(
     batch_size = 2,
     num_workers = 1,
     dataset=dict(
-        type='CustomDataset', #name of the dataset class,
+        type='CustomDataset',
         data_root='../data/final_malaria_full_class_classification_cropped', # The common prefix of both `ann_flie` and `data_prefix`.
-        data_prefix='',  # The prefix of file paths in the `ann_file`, relative to the data_root.
+        data_prefix='',  
         ann_file = "train_annotation.txt",
-        with_label=True, # or False for unsupervised tasks
-        pipeline=train_pipeline, # The transformations to process the dataset samples.
+        with_label=True, 
+        pipeline=train_pipeline, 
        ),
     sampler=dict(type='DefaultSampler', shuffle=True),
     collate_fn=dict(type='default_collate')
 )
 
+val_dataloader = dict(
+    batch_size = 2,
+    num_workers = 1,
+    dataset=dict(
+        type='CustomDataset',
+        data_root='../data/final_malaria_full_class_classification_cropped', # The common prefix of both `ann_flie` and `data_prefix`.
+        data_prefix='',  
+        ann_file = "val_annotation.txt",
+        with_label=True, 
+        pipeline=train_pipeline, 
+       ),
+    sampler=dict(type='DefaultSampler', shuffle=True),
+    collate_fn=dict(type='default_collate')
+)
+
+test_dataloader = dict(
+    batch_size = 2,
+    num_workers = 1,
+    dataset=dict(
+        type='CustomDataset',
+        data_root='../data/final_malaria_full_class_classification_cropped', # The common prefix of both `ann_flie` and `data_prefix`.
+        data_prefix='',  
+        ann_file = "test_annotation.txt",
+        with_label=True, 
+        pipeline=train_pipeline, 
+       ),
+    sampler=dict(type='DefaultSampler', shuffle=True),
+    collate_fn=dict(type='default_collate')
+)
 
 train_cfg = dict(
-  type= "EpochBasedTrainLoop",
-  #type = "CustomTrainLoop", 
+  #type= "EpochBasedTrainLoop",
+  type = "CustomTrainLoop", 
   max_epochs = 1,
   dataloader = train_dataloader,
+  dataloader1 = train_dataloader,
   _delete_ = True
 )
 
@@ -56,15 +85,8 @@ model = dict(
         topk=(1, 5),
     ))
 
-# Set val and test components to None to disable validation
-val_dataloader = None
-val_cfg = None
 val_evaluator = None
 
-# Optionally set test components to None if they are present in the base config
-test_dataloader = None
-test_cfg = None
-test_evaluator = None
 
 optimizer = dict(type='Adam', lr=0.00001, weight_decay=0.0001)
 
